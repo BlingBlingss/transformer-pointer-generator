@@ -1,0 +1,6 @@
+model_checkpoint_path: "trans_pointer170L0.02-170"
+all_model_checkpoint_paths: "trans_pointer130L0.02-130"
+all_model_checkpoint_paths: "trans_pointer140L0.02-140"
+all_model_checkpoint_paths: "trans_pointer150L0.02-150"
+all_model_checkpoint_paths: "trans_pointer160L0.02-160"
+all_model_checkpoint_paths: "trans_pointer170L0.02-170"
