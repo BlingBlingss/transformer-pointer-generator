@@ -15,12 +15,13 @@ class Hparams:
 
     # train
     ## files
-    parser.add_argument('--train', default='data/test.csv',
+    # 更改为data/train.csv
+    parser.add_argument('--train', default='data/train.csv',
                              help="data for train")
 
-    parser.add_argument('--eval', default='data/test.csv',
+    parser.add_argument('--eval', default='data/eval.csv',
                              help="data for evaluation")
-    parser.add_argument('--eval_rouge', default='data/test_summary.csv',
+    parser.add_argument('--eval_rouge', default='data/test.csv',
                              help="data for calculate rouge score")
 
     ## vocabulary

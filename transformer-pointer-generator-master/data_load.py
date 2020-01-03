@@ -55,8 +55,10 @@ def _load_data(fpaths, maxlen1, maxlen2):
     for fpath in fpaths.split('|'):
         with open(fpath, 'r', encoding='utf-8') as f:
             for line in f:
+                # 将摘要与内容以中文符号隔开
                 splits = line.split(',')
                 if len(splits) != 2: continue
+                # sen1为内容，sen2为摘要
                 sen1 = splits[1].replace('\n', '').strip()
                 sen2 = splits[0].strip()
                 if len(list(sen1)) + 1 > maxlen1-2: continue
@@ -118,8 +120,8 @@ def _generator_fn(sents1, sents2, vocab_fpath, maxlen1, maxlen2):
 
 def _input_fn(sents1, sents2, vocab_fpath, batch_size, gpu_nums, maxlen1, maxlen2, shuffle=False):
     '''Batchify data
-    sents1: list of source sents
-    sents2: list of target sents
+    sents1: list of source sents内容
+    sents2: list of target sents摘要
     vocab_fpath: string. vocabulary file path.
     batch_size: scalar
     shuffle: boolean
@@ -168,7 +170,9 @@ def get_batch(fpath, maxlen1, maxlen2, vocab_fpath, batch_size, gpu_nums, shuffl
     num_batches: number of mini-batches
     num_samples
     '''
+    # 取前400000条数据。sents1为内容，sents2为摘要
     sents1, sents2 = _load_data(fpath, maxlen1, maxlen2)
+
     batches = _input_fn(sents1, sents2, vocab_fpath, batch_size, gpu_nums, maxlen1, maxlen2, shuffle=shuffle)
     num_batches = calc_num_batches(len(sents1), batch_size*gpu_nums)
     return batches, num_batches, len(sents1)

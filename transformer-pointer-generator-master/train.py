@@ -21,7 +21,7 @@ from utils import save_hparams, save_variable_specs, get_hypotheses, calc_rouge,
 # logging日志一共分成5个等级，从低到高分别是：DEBUG INFO WARNING ERROR CRITICAL
 # logging与print 区别，为什么需要logging？
 # 在写脚本的过程中，为了调试程序，我们往往会写很多print打印输出以便用于验证，验证正确后往往会注释掉，一旦验证的地方比较多，再一一注释比较麻烦，]
-# 这样logging就应运而生了，直接把验证信息存在一个文件中（例如在logging.basicConfig(里面设置filename= ‘employee.log’,）or直接打印出出来，不用设置finame，就会直接打印在cmd窗口中。
+# 这样logging就应运而生了，直接把验证信息存在一个文件中（例如在logging.basicConfig(里面设置filename= ‘employee.log’,）or直接打印出出来，不用设置filname，就会直接打印在cmd窗口中。
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,9 +36,11 @@ hp = parser.parse_args()
 gpu_list = [str(i) for i in list(range(hp.gpu_nums))]
 tf = import_tf(gpu_list)
 
+# 保存超参数
 save_hparams(hp, hp.logdir)
 
 logging.info("# Prepare train/eval batches")
+# 更改为train
 train_batches, num_train_batches, num_train_samples = get_batch(hp.train,
                                                                 hp.maxlen1,
                                                                 hp.maxlen2,
@@ -73,6 +75,7 @@ m = Transformer(hp)
 loss, train_op, global_step, train_summaries = m.train(xs, ys)
 y_hat, eval_summaries = m.eval(xs, ys)
 
+# 返回vocab字典的词及id, id及词
 token2idx, idx2token = _load_vocab(hp.vocab)
 
 bs = BeamSearch(m, hp.beam_size, list(idx2token.keys())[2], list(idx2token.keys())[3], idx2token, hp.maxlen2, m.x,
@@ -95,13 +98,13 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
     training_handle = sess.run(training_iter.string_handle())
     val_handle = sess.run(val_iter.string_handle())
 
-    total_steps = hp.num_epochs * num_train_batches
+    total_steps = hp.num_epochs * num_train_batches * 2
     _gs = sess.run(global_step)
     for i in tqdm(range(_gs, total_steps+1)):
         _, _gs, _summary = sess.run([train_op, global_step, train_summaries], feed_dict={handle: training_handle})
         summary_writer.add_summary(_summary, _gs)
         print(_gs)
-        if _gs % (hp.gpu_nums * 10) == 0 and _gs != 0:
+        if _gs % (hp.gpu_nums * 10000) == 0 and _gs != 0:
             logging.info("steps {} is done".format(_gs))
 
             logging.info("# test evaluation")
