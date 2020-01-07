@@ -62,7 +62,10 @@ def save_hparams(hparams, path):
     hparams as literal dictionary to path.
     '''
     if not os.path.exists(path): os.makedirs(path)
+    # hparams为： Namespace(batch_size=32, beam_size=4, d_ff=2048, d_model=512, dropout_rate=0.1, eval='data/eval.csv', eval_batch_size=32, eval_rouge='data/test.csv', evaldir='eval/1', gpu_nums=1, logdir='log/2', lr=0.0005, maxlen1=150, maxlen2=25, num_blocks=6, num_epochs=5, num_heads=8, stop_vocab='stop_vocab', train='data/train.csv', vocab='vocab', vocab_size=10598, warmup_steps=4000)
     hp = json.dumps(vars(hparams))
+    # hp为 {"vocab_size": 10598, "train": "data/train.csv", "eval": "data/eval.csv", "eval_rouge": "data/test.csv", "vocab": "vocab", "stop_vocab": "stop_vocab", "batch_size": 32, "eval_batch_size": 32, "lr": 0.0005, "warmup_steps": 4000, "logdir": "log/2", "num_epochs": 5, "evaldir": "eval/1", "d_model": 512, "d_ff": 2048, "num_blocks": 6, "num_heads": 8, "maxlen1": 150, "maxlen2": 25, "dropout_rate": 0.1, "beam_size": 4, "gpu_nums": 1}
+    # os.path.join连接两个或更多的路径名组件
     with open(os.path.join(path, "hparams"), 'w') as fout:
         fout.write(hp)
 

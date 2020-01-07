@@ -31,6 +31,7 @@ logging.info("# hparams")
 hparams = Hparams()
 parser = hparams.parser
 hp = parser.parse_args()
+# hp为： Namespace(batch_size=32, beam_size=4, d_ff=2048, d_model=512, dropout_rate=0.1, eval='data/eval.csv', eval_batch_size=32, eval_rouge='data/test.csv', evaldir='eval/1', gpu_nums=1, logdir='log/2', lr=0.0005, maxlen1=150, maxlen2=25, num_blocks=6, num_epochs=5, num_heads=8, stop_vocab='stop_vocab', train='data/train.csv', vocab='vocab', vocab_size=10598, warmup_steps=4000)
 
 # import tensorflow
 gpu_list = [str(i) for i in list(range(hp.gpu_nums))]

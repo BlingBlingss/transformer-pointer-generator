@@ -59,3 +59,8 @@ class Hparams:
                         help="beam size")
     parser.add_argument('--gpu_nums', default=1, type=int,
                         help="gpu amount, which can allow how many gpu to train this model")
+
+# hparams = Hparams()
+# parser = hparams.parser
+# hp = parser.parse_args()
+# print(hp)

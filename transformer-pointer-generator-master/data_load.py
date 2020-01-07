@@ -23,6 +23,7 @@ def _load_vocab(vocab_fpath):
         for line in f:
             vocab.append(line.replace('\n', ''))
     token2idx = {token: idx for idx, token in enumerate(vocab)}
+    # idx2token {0: '<pad>', 1: '<unk>', 2: '<s>', 3: '</s>'.........}
     idx2token = {idx: token for idx, token in enumerate(vocab)}
 
     return token2idx, idx2token
@@ -78,14 +79,18 @@ def _encode(inp, token2idx, maxlen, type):
     Returns
     list of numbers
     '''
+    # 先按照utf-8解码，返回中文字符
     inp = inp.decode('utf-8')
-    if type == 'x':
+    if type == 'x':  # "x" (source side)内容
+        # tokens为分离出来的每个汉字组成的列表['<s>', '我', '是', '你', '爸', '爸', '</s>']
         tokens = ['<s>'] + list(inp) + ['</s>']
         while len(tokens) < maxlen:
+            # 填充<pad>至最大长度['<s>', '我', '是', '你', '爸', '爸', '</s>', '<pad>', '<pad>', '<pad>']
             tokens.append('<pad>')
+        # 返回每个汉字在词典中的id号，如果不存在返回词典中<unk>(unknown)对应的id
         return [token2idx.get(token, token2idx['<unk>']) for token in tokens]
 
-    else:
+    else:  # y" (target side)摘要
         inputs = ['<s>'] + list(inp)
         target = list(inp) + ['</s>']
         while len(target) < maxlen:
@@ -110,7 +115,9 @@ def _generator_fn(sents1, sents2, vocab_fpath, maxlen1, maxlen2):
         y_seqlen: int. sequence length of y
         sent2: str. target sentence
     '''
+    # 返回vocab字典的词及id
     token2idx, _ = _load_vocab(vocab_fpath)
+    # 利用zip同时遍历sent1,sent2
     for sent1, sent2 in zip(sents1, sents2):
         x = _encode(sent1, token2idx, maxlen1, "x")
 
@@ -137,11 +144,14 @@ def _input_fn(sents1, sents2, vocab_fpath, batch_size, gpu_nums, maxlen1, maxlen
         y_seqlen: int32 tensor. (N, )
         sents2: str tensor. (N,)
     '''
+    # <class 'tuple'>: (([150], ()), ([25], [25], ()))
     shapes = (([maxlen1], ()),
               ([maxlen2], [maxlen2], ()))
+    # <class 'tuple'>: ((tf.int32, tf.string), (tf.int32, tf.int32, tf.string))
     types = ((tf.int32, tf.string),
              (tf.int32, tf.int32, tf.string))
-
+    # 创建Dataset实例
+    # <DatasetV1Adapter shapes: (((150,), ()), ((25,), (25,), ())), types: ((tf.int32, tf.string), (tf.int32, tf.int32, tf.string))>
     dataset = tf.data.Dataset.from_generator(
         _generator_fn,
         output_shapes=shapes,
@@ -170,7 +180,7 @@ def get_batch(fpath, maxlen1, maxlen2, vocab_fpath, batch_size, gpu_nums, shuffl
     num_batches: number of mini-batches
     num_samples
     '''
-    # 取前400000条数据。sents1为内容，sents2为摘要
+    # 取前400000条数据（utf-8编码）。sents1为内容，sents2为摘要
     sents1, sents2 = _load_data(fpath, maxlen1, maxlen2)
 
     batches = _input_fn(sents1, sents2, vocab_fpath, batch_size, gpu_nums, maxlen1, maxlen2, shuffle=shuffle)
